@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>jGen demo</title>
+		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+		<script type="text/javascript" src="scripts/oop.js"></script>
+		<script type="text/javascript" src="scripts/XMLHttpRequest.js"></script>
+		<script type="text/javascript" src="scripts/string.js"></script>
+		<script type="text/javascript" src="scripts/html.js"></script>
+		<script type="text/javascript" src="scripts/math.js"></script>
+		<script type="text/javascript" src="scripts/map.js"></script>
+		<script type="text/javascript">
+			
+			var TEngine = Class.create({
+				callback: null,
+				eventHandler: null,
+				gameState: {
+					keys: {},
+					mouse: {}
+				},
+				constructor: function(fCallback) {
+					var oThis = this;
+					this.callback = fCallback;
+					this.eventHandler = function(oEvent) {
+						if (oEvent.type == 'keydown') oThis.gameState.keys[oEvent.keyCode] = true;
+						else if (oEvent.type == 'keyup') oThis.gameState.keys[oEvent.keyCode] = false;
+						else if (oEvent.type == 'mousedown') oThis.gameState.mouse.down = true;
+						else if (oEvent.type == 'mouseup') oThis.gameState.mouse.down = false;
+						else if (oEvent.type == 'mousemove') {
+							oThis.gameState.mouse.x = oEvent.clientX;
+							oThis.gameState.mouse.y = oEvent.clientY;
+						}
+					};
+				},
+				start: function() {
+					var oThis = this;
+					document.addEventListener('keydown', this.eventHandler, false);
+					document.addEventListener('keyup', this.eventHandler, false);
+					document.addEventListener('mousemove', this.eventHandler, false);
+					document.addEventListener('mousedown', this.eventHandler, false);
+					document.addEventListener('mouseup', this.eventHandler, false);
+					setInterval(function() { oThis.callback.call(oThis, oThis.gameState); }, 0);
+				}
+			});
+			
+			function start() {
+				var oMapViewPort = document.body;
+				var oMap = new TMap(oMapViewPort, oMapViewPort.offsetWidth, oMapViewPort.offsetHeight);
+				oMap.loadMap('map.xml', function() {
+					oMap.render(0, 0);
+					(new TEngine(function(oGameState) {
+						window.top.status = oMap.sprites.length;
+						if (oGameState.keys[39]) oMap.sprites[0].rotateTo(1);
+						if (oGameState.keys[37]) oMap.sprites[0].rotateTo(-1);
+						if (oGameState.keys[38]) oMap.sprites[0].moveForward(2);
+						if (oGameState.keys[40]) oMap.sprites[0].moveForward(-2);
+						
+						oMap.render(oMap.sprites[0].posX, oMap.sprites[0].posY);
+						
+						if (oGameState.keys[32]) {
+							if (window.bullet) return;
+							window.bullet = true;
+							
+							var oBullet = new TBullet(oMap, 'sprite-bullet');
+							
+							var aPoint = Math.circle_point(
+								(oMap.sprites[0].posX + oMap.sprites[0].sprite.offsetWidth / 2),
+								(oMap.sprites[0].posY + oMap.sprites[0].sprite.offsetHeight / 2),
+								Math.deg2rad(oMap.sprites[0].rotationDeg + 90),
+								30
+							);
+							
+							oBullet.move(aPoint[0], aPoint[1]);
+							oBullet.rotate(oMap.sprites[0].rotationDeg);
+							oBullet.show();
+							oMap.addSprite(oBullet);
+							
+							window.bullet = setTimeout(function() {
+								clearTimeout(window.bullet);
+								window.bullet = 0;
+							}, 500);
+						}
+					})).start();
+				});
+			}
+		</script>
+	</head>
+	<body onload="start();">
+	</body>
+</html>

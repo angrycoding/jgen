@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map tile-width="100" tile-height="50" map-width="30" map-height="125">
+	
+	<tiles>
+		<tile name="grass1" url="media/isometric.png" height="50" />
+	</tiles>
+	
+	<sprites>
+		<sprite name="tank" url="media/tank.png" width="32" height="32" />
+		<sprite name="tank1" url="media/tank1.png" width="24" height="32" />
+		<sprite name="tank2" url="media/tank2.png" width="24" height="32" />
+		<sprite name="bullet" width="3" height="3" style="background-color:white;border-radius:5px;" />
+	</sprites>
+	
+	<map>
+		<sprite ref="tank" x="150" y="350" rotate="200" />
+		<sprite ref="tank2" x="50" y="50" rotate="310" />
+		<sprite ref="tank1" x="800" y="600" rotate="200" />
+	</map>
+	
+</map>

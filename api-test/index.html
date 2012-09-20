@@ -3,42 +3,42 @@
 	<head>
 		<title>jGen - JavaScript Game Engine - Collisions - Demo</title>
 		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
-		<script type="text/javascript" src="../../trunk/jsface.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.Math.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.HTML.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.String.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.Event.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.Selector.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.EventQueue.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.Map.js"></script>
-		<script type="text/javascript" src="../../trunk/jgen.Sprite.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jsface.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.Math.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.HTML.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.String.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.Event.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.Selector.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.EventQueue.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.Map.js"></script>
+		<script type="text/javascript" src="https://raw.github.com/angrycoding/jgen/master/jgen.Sprite.js"></script>
 		<script type="text/javascript">
 			window.addEventListener('load', function() {
 				var oEventQueue = new jgen.EventQueue(document.body);
-				
+
 				var oSprite = new jgen.Sprite(oEventQueue, 'media/sprite.png', 64, 64);
-				
+
 				var oSprite1 = oSprite.clone();
 				oSprite1.setRotation(jgen.Math.deg2rad(45));
 				oSprite1.setPosition(250, 250);
 				oSprite1.setVisible(true);
-				
+
 				var oSprite2 = oSprite.clone();
 				oSprite2.setPosition(450, 150);
 				oSprite2.setVisible(true);
-				
+
 				var oPoint = jgen.HTML.setStyle(document.createElement('div'), {
 					'position': 'absolute',
 					'width': '5px',
 					'height': '5px',
 					'background-color': 'red'
 				});
-				
+
 				var oPoint1 = document.body.appendChild(oPoint.cloneNode(false));
 				var oPoint2 = document.body.appendChild(oPoint.cloneNode(false));
 				var oPoint3 = document.body.appendChild(oPoint.cloneNode(false));
 				var oPoint4 = document.body.appendChild(oPoint.cloneNode(false));
-				
+
 				/*
 				var oLine1 = document.body.appendChild(
 					jgen.HTML.setStyle(document.createElement('div'), {
@@ -51,7 +51,7 @@
 						'-webkit-transform-origin': '0px 0px'
 					})
 				);
-				
+
 				var oLine2 = document.body.appendChild(
 					jgen.HTML.setStyle(document.createElement('div'), {
 						'position': 'absolute',
@@ -64,56 +64,56 @@
 					})
 				);
 				*/
-				
+
 				oEventQueue.start(function() {
-					
+
 					/*
 					jgen.HTML.setStyle(oLine1, {
 						'width': jgen.Math.point2distance(300, 300, 200, 0) + 'px',
 						'-webkit-transform': 'rotate(' + jgen.Math.point2angle([300, 300], [200, 0]) + 'rad)'
 					});
-					
+
 					var iDistance = jgen.Math.point2distance(0, 0, this.mouse.x, this.mouse.y);
 					var iAngle = jgen.Math.point2angle([0, 0], [this.mouse.x, this.mouse.y]);
-					
+
 					jgen.HTML.setStyle(oLine2, {
 						'width': iDistance + 'px',
 						'-webkit-transform': 'rotate(' + iAngle + 'rad)'
 					});
-					
+
 					var s = jgen.Math.lineOnLine(
 						300, 300, 200, 0,
 						0, 0, this.mouse.x, this.mouse.y
 					);
-					
+
 					window.top.status = s;
-					
+
 					jgen.HTML.setStyle(oPoint1, {
 						'left': s[0] + 'px',
 						'top': s[1] + 'px'
 					});
 					*/
-					
+
 					if (this.keys[37]) oSprite2.rotate(jgen.Math.deg2rad(-1));
 					if (this.keys[39]) oSprite2.rotate(jgen.Math.deg2rad(1));
 					if (this.keys[38]) oSprite2.moveForward(2);
 					if (this.keys[40]) oSprite2.moveForward(-2);
-					
+
 					var aSprite1Pos = oSprite1.getPosition();
 					var aSprite2Pos = oSprite2.getPosition();
-					
+
 					var aRect1Points = jgen.Math.pointsOfRect(
 						aSprite1Pos,
 						[oSprite1.spriteWidth, oSprite1.spriteHeight],
 						oSprite1.spriteRotation
-					);      
-					
+					);
+
 					var aRect2Points = jgen.Math.pointsOfRect(
 						aSprite2Pos,
 						[oSprite2.spriteWidth, oSprite2.spriteHeight],
 						oSprite2.spriteRotation
 					);
-					
+
 					if (jgen.Math.rectangles(
 						aRect1Points[0][0], aRect1Points[0][1], aRect1Points[1][0], aRect1Points[1][1],
 						aRect1Points[2][0], aRect1Points[2][1], aRect1Points[3][0], aRect1Points[3][1],
@@ -126,27 +126,27 @@
 						'background-image': 'url("media/sprite.png")',
 						'background-color': ''
 					});
-					
+
 					jgen.HTML.setStyle(oPoint1, {
 						'left': aRect2Points[0][0] + 'px',
 						'top': aRect2Points[0][1] + 'px'
 					});
-					
+
 					jgen.HTML.setStyle(oPoint2, {
 						'left': aRect2Points[1][0] + 'px',
 						'top': aRect2Points[1][1] + 'px'
 					});
-					
+
 					jgen.HTML.setStyle(oPoint3, {
 						'left': aRect2Points[2][0] + 'px',
 						'top': aRect2Points[2][1] + 'px'
 					});
-					
+
 					jgen.HTML.setStyle(oPoint4, {
 						'left': aRect2Points[3][0] + 'px',
 						'top': aRect2Points[3][1] + 'px'
 					});
-					
+
 					if (jgen.Math.pointInRect(
 						aSprite2Pos,
 						[oSprite2.spriteWidth, oSprite2.spriteHeight],
@@ -159,7 +159,7 @@
 						'background-image': 'url("media/sprite.png")',
 						'background-color': ''
 					});
-					
+
 					this.processEvents();
 				}, 10);
 			});

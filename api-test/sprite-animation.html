@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>jGen - JavaScript Game Engine - Sprite Animation - Demo</title>
+		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+		<script type="text/javascript" src="../../trunk/jsface.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Math.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.HTML.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.String.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Event.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Selector.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.EventQueue.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Map.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Sprite.js"></script>
+		<script type="text/javascript">
+			
+			window.addEventListener('load', function() {
+				var oEventQueue = new jgen.EventQueue(document.body);
+				
+				var oSprite = new jgen.Sprite(oEventQueue, 'media/mechwarrior.png', 87, 80);
+				
+				// walking down
+				for (var c = 0; c < 11; c++) oSprite.addFrame(0, c * 80);
+				// walking up
+				for (var c = 0; c < 11; c++) oSprite.addFrame(87 * 4, c * 80);
+				// walking right
+				for (var c = 0; c < 10; c++) oSprite.addFrame(87 * 6, c * 80);
+				// walking left
+				for (var c = 0; c < 10; c++) oSprite.addFrame(87 * 2, c * 80);
+				// walking down left
+				for (var c = 0; c < 17; c++) oSprite.addFrame(87, c * 80);
+				// walking top left
+				for (var c = 0; c < 16; c++) oSprite.addFrame(87 * 3, c * 80);
+				// walking top right
+				for (var c = 0; c < 16; c++) oSprite.addFrame(87 * 5, c * 80);
+				// walking bottom right
+				for (var c = 0; c < 17; c++) oSprite.addFrame(87 * 7, c * 80);
+				
+				oSprite.setPosition(550, 250);
+				oSprite.setVisible(true);
+				
+				oEventQueue.start(function() {
+					
+					if ((this.keys[39]) && (this.keys[40])) {
+						// walking bottom right
+						oSprite.animate(91, 107, 4, function() { this.setFrame(91); });
+					} else if ((this.keys[37]) && (this.keys[38])) {
+						// walking top left
+						oSprite.animate(59, 74, 4, function() { this.setFrame(59); });
+					} else if ((this.keys[39]) && (this.keys[38])) {
+						// walking top right
+						oSprite.animate(75, 90, 4, function() { this.setFrame(75); });
+					} else if ((this.keys[37]) && (this.keys[40])) {
+						// walking down left
+						oSprite.animate(42, 58, 4, function() { this.setFrame(42); });
+					} else if (this.keys[39]) {
+						// walking right
+						oSprite.animate(22, 31, 4, function() { this.setFrame(22); });
+					} else if (this.keys[37]) {
+						// walking left
+						oSprite.animate(32, 41, 4, function() { this.setFrame(32); });
+					} else if (this.keys[38]) {
+						// walking up
+						oSprite.animate(11, 21, 4, function() { this.setFrame(11); });
+					} else if (this.keys[40]) {
+						// walking down
+						oSprite.animate(0, 10, 4, function() { this.setFrame(0); });
+					}
+					this.processEvents();
+				}, 10);
+				
+			});
+		</script>
+	</head>
+	<body>
+	</body>
+</html>

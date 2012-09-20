@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>jGen - JavaScript Game Engine - Rendering 2D Map with sprite animation - Demo</title>
+		<link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+		<script type="text/javascript" src="../../trunk/jsface.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Math.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.HTML.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.String.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Event.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Selector.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.EventQueue.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Map.js"></script>
+		<script type="text/javascript" src="../../trunk/jgen.Sprite.js"></script>
+		<script type="text/javascript">
+			window.addEventListener('load', function() {
+				var oViewPort = jgen.Selector.query(document.body, '.viewPort');
+				var oEventQueue = new jgen.EventQueue(oViewPort);
+				
+				var oMap = new jgen.Map(oEventQueue);
+				oMap.tile.style.backgroundImage = 'url("media/tile.gif")';
+				oMap.setViewPortSize(640, 480);
+				oMap.setMapGeometry(15, 15, 64, 64);
+				
+				var oSprite = new jgen.Sprite(oEventQueue, 'media/guy.png', 110, 152);
+				for (var c = 0; c < 16; c++) oSprite.addFrame(c * oSprite.spriteWidth, 0);
+				oSprite.setRotation(jgen.Math.deg2rad(0));
+				oSprite.setPosition(320 - 32, 240 - 32);
+				oSprite.setVisible(true);
+				
+				oMap.render(0, 0);
+				oEventQueue.start(function() {
+						
+					if (this.keys[37]) oSprite.rotate(jgen.Math.deg2rad(-1));
+					if (this.keys[39]) oSprite.rotate(jgen.Math.deg2rad(1));
+					if (this.keys[38]) {
+						oSprite.animate(0, 5, 8, function() { this.setFrame(0); });
+						oMap.scroll(oSprite.spriteRotation, 4);
+					}
+					
+					this.processEvents();
+				});
+				
+			}, true);
+		</script>
+	</head>
+	<body>
+		<div class="viewPort"></div>
+		<div class="viewPortFrame"></div>
+	</body>
+</html>

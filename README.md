@@ -6,6 +6,8 @@ jGen - JavaScript Game Engine
 I've decided to restart this project, old code now is available in the "first-try" branch. All new code will be published in the master branch.
 Follow the updates!
 
+**INTRODUCTION**
+
 It's Just an attempt to recreate "old school" isometric techniques in the modern web browsers without using a canvas, with only JavaScript and HTML.
 Don't expect to see something amazing while checking the demos. Project is very young and my attention at this moment is concentrated on getting map editor tool done. However the engine itself (checkout tanks game demo) currently supports simple sprite animation, collisions, rendering an isometric map. *At this moment works only in Chrome and Safari*. If you are interested in this project, please contact me. I'm looking for contributors.
 

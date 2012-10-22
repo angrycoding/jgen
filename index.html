@@ -12,6 +12,7 @@
 			}
 		</style>
 		<script type="text/javascript" src="script/jsface.js"></script>
+		<script type="text/javascript" src="src/Sprite.js"></script>
 		<script type="text/javascript" src="src/Renderer.js"></script>
 		<script type="text/javascript">
 			window.onload = function() {
@@ -27,11 +28,11 @@
 
 				renderer.setMapSize(20, 20);
 				renderer.setTileSize(64, 64);
-				renderer.setTileDefinition(0, 64, 64, 'media/tile0.png');
-				renderer.setTileDefinition(1, 64, 64, 'media/tile1.png');
-				renderer.setTileDefinition(2, 64, 64, 'media/tile2.png');
-				renderer.setTileDefinition(3, 64, 64, 'media/tile3.png');
-				renderer.setViewPort(document.body, 740, 580);
+				renderer.setTileDefinition(0, 63, 63, 'media/tile0.png');
+				renderer.setTileDefinition(1, 63, 63, 'media/tile1.png');
+				renderer.setTileDefinition(2, 63, 63, 'media/tile2.png');
+				renderer.setTileDefinition(3, 63, 63, 'media/tile3.png');
+				renderer.setViewPort(document.body, 640, 640);
 
 				// var sprite = new Sprite('media/mechwarrior.png', 30, 30);
 				// renderer.addSprite(sprite);
@@ -90,16 +91,26 @@
 					delete keyPressed[event.keyCode];
 				});
 
-				var spriteX = 0, spriteY = 0;
+				var cameraX = 0, cameraY = 0;
+				renderer.setCamera(320 - 32, 320 - 32);
+
+				var sprite = new Sprite(64, 64);
+				renderer.addSprite(sprite);
+				var step = 3;
+
 
 				setInterval(function() {
-					if (keyPressed[37]) spriteX -= 1;
-					if (keyPressed[38]) spriteY -= 1;
-					if (keyPressed[39]) spriteX += 1;
-					if (keyPressed[40]) spriteY += 1;
 
-					renderer.render(spriteX, spriteY);
+					if (keyPressed[37]) cameraX -= step;
+					if (keyPressed[38]) cameraY -= step;
+					if (keyPressed[39]) cameraX += step;
+					if (keyPressed[40]) cameraY += step;
+
+					var f = renderer.render(cameraX, cameraY);
+					sprite.setPosition(f[0], f[1]);
+
 				}, 1);
+
 
 			};
 

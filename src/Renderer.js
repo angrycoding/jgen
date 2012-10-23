@@ -1,9 +1,10 @@
 var Renderer = Class(function() {
 
-	var tileEl = null;
-	var styleEl = null;
+	var instanceID = null;
 	var viewPort = null;
 	var mapViewPort = null;
+	var tileElement = null;
+	var styleElement = null;
 	var spriteViewPort = null;
 
 	var mapWidth = 0, mapHeight = 0;
@@ -11,9 +12,7 @@ var Renderer = Class(function() {
 	var maxScrollX = 0, maxScrollY = 0;
 	var viewPortWidth = 0, viewPortHeight = 0;
 
-	var tileViewX = 0, tileViewY = 0;
-	var tileViewLeft = 0, tileViewTop = 0;
-	var tileViewWidth = 0, tileViewHeight = 0;
+
 
 	var cameraWidth = 0, cameraHeight = 0;
 
@@ -27,21 +26,19 @@ var Renderer = Class(function() {
 	}
 
 	function constructor() {
-		tileEl = document.createElement('div');
-		styleEl = document.createElement('style');
-		styleEl.setAttribute('type', 'text/css');
-		document.head.appendChild(styleEl);
-
+		instanceID = new Date().getTime().toString(16);
+		tileElement = document.createElement('div');
+		styleElement = document.createElement('style');
+		styleElement.setAttribute('type', 'text/css');
+		document.head.appendChild(styleElement);
 		viewPort = document.createElement('div');
+		viewPort.id = ('jgen-' + instanceID);
 		viewPort.style.position = 'relative';
 		viewPort.style.overflow = 'hidden';
-
 		mapViewPort = document.createElement('div');
 		mapViewPort.style.position = 'absolute';
-
 		spriteViewPort = document.createElement('div');
 		spriteViewPort.style.position = 'absolute';
-
 		viewPort.appendChild(mapViewPort);
 		viewPort.appendChild(spriteViewPort);
 	}
@@ -81,6 +78,7 @@ var Renderer = Class(function() {
 		tileDefinitions[tileID] = [tileWidth, tileHeight, tileUrl];
 		for (var tileID in tileDefinitions) {
 			var tileDefinition = tileDefinitions[tileID];
+			css.push('#jgen-' + instanceID);
 			css.push('.tile-' + tileID + '{');
 			css.push('position: absolute;');
 			css.push('width: ' + tileDefinition[0] + 'px;');
@@ -89,54 +87,32 @@ var Renderer = Class(function() {
 			css.push('background-image: url("' + tileDefinition[2] + '");')
 			css.push('}');
 		}
-		styleEl.innerHTML = css.join('\n');
+		styleElement.innerHTML = css.join('\n');
 	}
 
 	function render(scrollX, scrollY) {
-
-		var newTileViewX = (scrollX % tileWidth);
-		var newTileViewY = (scrollY % tileHeight);
-		var newTileViewLeft = Math.floor(scrollX / tileWidth);
-		var newTileViewTop = Math.floor(scrollY / tileHeight);
-		var newTileViewWidth = Math.ceil((viewPortWidth + tileViewX) / tileWidth);
-		var newTileViewHeight = Math.ceil((viewPortHeight + tileViewY) / tileHeight);
-
-		if (tileViewX !== newTileViewX ||
-			tileViewY !== newTileViewY) {
-			tileViewX = newTileViewX;
-			tileViewY = newTileViewY;
-			mapViewPort.style.marginLeft = -tileViewX + 'px';
-			mapViewPort.style.marginTop = -tileViewY + 'px';
-		}
-
-		if (tileViewTop !== newTileViewTop ||
-			tileViewLeft !== newTileViewLeft ||
-			tileViewWidth !== newTileViewWidth ||
-			tileViewHeight !== newTileViewHeight) {
-
-			tileViewTop = newTileViewTop;
-			tileViewLeft = newTileViewLeft;
-			tileViewWidth = newTileViewWidth;
-			tileViewHeight = newTileViewHeight;
-
-			for (var row = 0; row < newTileViewHeight; row++) {
-				for (var col = 0; col < newTileViewWidth; col++) {
-
-					var sIndex = (row + '.' + col);
-					if (!tileCache.hasOwnProperty(sIndex)) {
-						var tile = tileEl.cloneNode(false);
-						tile.style.left = (tileWidth * col) + 'px';
-						tile.style.top = (tileHeight * row) + 'px';
-						tileCache[sIndex] = mapViewPort.appendChild(tile);
-					}
-
-					var className = mapData[tileViewTop + row][tileViewLeft + col];
-					tileCache[sIndex].className = ('tile-' + className);
-
-
-				}
+		var row, col, tile, tileID, cacheKey;
+		var marginLeft = (scrollX % tileWidth);
+		var marginTop = (scrollY % tileHeight);
+		mapViewPort.style.left = -marginLeft + 'px';
+		mapViewPort.style.top = -marginTop + 'px';
+		var tileX = Math.floor(scrollX / tileWidth);
+		var tileY = Math.floor(scrollY / tileHeight);
+		var tileW = Math.ceil((viewPortWidth + marginLeft) / tileWidth);
+		var tileH = Math.ceil((viewPortHeight + marginTop) / tileHeight);
+		for (row = 0; row < tileH; row++) {
+			for (col = 0; col < tileW; col++) {
+				cacheKey = ((col << 16) | row);
+				if (!tileCache.hasOwnProperty(cacheKey)) {
+					tile = tileElement.cloneNode(false);
+					tile.style.left = (tileWidth * col) + 'px';
+					tile.style.top = (tileHeight * row) + 'px';
+					mapViewPort.appendChild(tile);
+					tileCache[cacheKey] = tile;
+				} else tile = tileCache[cacheKey];
+				tileID = mapData[tileY + row][tileX + col];
+				tile.className = ('tile-' + tileID);
 			}
-
 		}
 	}
 
@@ -145,7 +121,6 @@ var Renderer = Class(function() {
 	}
 
 	var sprites = [];
-
 
 	return {
 

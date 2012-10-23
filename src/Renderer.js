@@ -83,6 +83,11 @@ var Renderer = Class(function() {
 			css.push('position: absolute;');
 			css.push('width: ' + tileDefinition[0] + 'px;');
 			css.push('height: ' + tileDefinition[1] + 'px;');
+
+			css.push('margin-top: ' + (64 - tileDefinition[1])  + 'px;');
+			css.push('margin-left: ' + (64 - tileDefinition[0]) / 2  + 'px;');
+
+			css.push('background-position: center bottom;');
 			css.push('background-repeat: no-repeat;');
 			css.push('background-image: url("' + tileDefinition[2] + '");')
 			css.push('}');
@@ -107,6 +112,7 @@ var Renderer = Class(function() {
 					tile = tileElement.cloneNode(false);
 					tile.style.left = (tileWidth * col) + 'px';
 					tile.style.top = (tileHeight * row) + 'px';
+					// tile.style.zIndex = 30 - row;
 					mapViewPort.appendChild(tile);
 					tileCache[cacheKey] = tile;
 				} else tile = tileCache[cacheKey];

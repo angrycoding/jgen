@@ -11,10 +11,12 @@ var Renderer = Class(function() {
 	var maxScrollX = 0, maxScrollY = 0;
 	var viewPortWidth = 0, viewPortHeight = 0;
 
+	var tileViewX = 0, tileViewY = 0;
+	var tileViewLeft = 0, tileViewTop = 0;
+	var tileViewWidth = 0, tileViewHeight = 0;
+
 	var cameraWidth = 0, cameraHeight = 0;
 
-	var toCol = 0, toRow = 0;
-	var marginLeft = 0, marginTop = 0;
 	var tileCache = {};
 	var tileDefinitions = {};
 	var mapData = [];
@@ -92,27 +94,33 @@ var Renderer = Class(function() {
 
 	function render(scrollX, scrollY) {
 
-		var newMarginTop = (scrollY % tileHeight);
-		var newMarginLeft = (scrollX % tileWidth);
-		if (marginTop !== newMarginTop ||
-			marginLeft !== newMarginLeft) {
-			marginTop = newMarginTop;
-			marginLeft = newMarginLeft;
-			mapViewPort.style.marginTop = -marginTop + 'px';
-			mapViewPort.style.marginLeft = -marginLeft + 'px';
+		var newTileViewX = (scrollX % tileWidth);
+		var newTileViewY = (scrollY % tileHeight);
+		var newTileViewLeft = Math.floor(scrollX / tileWidth);
+		var newTileViewTop = Math.floor(scrollY / tileHeight);
+		var newTileViewWidth = Math.ceil((viewPortWidth + tileViewX) / tileWidth);
+		var newTileViewHeight = Math.ceil((viewPortHeight + tileViewY) / tileHeight);
+
+		if (tileViewX !== newTileViewX ||
+			tileViewY !== newTileViewY) {
+			tileViewX = newTileViewX;
+			tileViewY = newTileViewY;
+			mapViewPort.style.marginLeft = -tileViewX + 'px';
+			mapViewPort.style.marginTop = -tileViewY + 'px';
 		}
 
-		var cols = Math.ceil((viewPortWidth + marginLeft) / tileWidth);
-		var rows = Math.ceil((viewPortHeight + marginTop) / tileHeight);
+		if (tileViewTop !== newTileViewTop ||
+			tileViewLeft !== newTileViewLeft ||
+			tileViewWidth !== newTileViewWidth ||
+			tileViewHeight !== newTileViewHeight) {
 
-		// this gives some problem when the viewPort is set to 320x320
-		// if (toCol !== cols || toRow !== rows) {
-		// 	toCol = cols; toRow = rows;
-			var fromCol = Math.floor(scrollX / tileWidth);
-			var fromRow = Math.floor(scrollY / tileHeight);
+			tileViewTop = newTileViewTop;
+			tileViewLeft = newTileViewLeft;
+			tileViewWidth = newTileViewWidth;
+			tileViewHeight = newTileViewHeight;
 
-			for (var row = 0; row < rows; row++) {
-				for (var col = 0; col < cols; col++) {
+			for (var row = 0; row < newTileViewHeight; row++) {
+				for (var col = 0; col < newTileViewWidth; col++) {
 
 					var sIndex = (row + '.' + col);
 					if (!tileCache.hasOwnProperty(sIndex)) {
@@ -122,14 +130,14 @@ var Renderer = Class(function() {
 						tileCache[sIndex] = mapViewPort.appendChild(tile);
 					}
 
-					var className = mapData[fromRow + row][fromCol + col];
+					var className = mapData[tileViewTop + row][tileViewLeft + col];
 					tileCache[sIndex].className = ('tile-' + className);
 
 
 				}
 			}
 
-		// }
+		}
 	}
 
 	function setMapData(data) {

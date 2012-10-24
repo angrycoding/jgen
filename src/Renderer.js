@@ -7,6 +7,7 @@ var Renderer = Class(function() {
 	var styleElement = null;
 	var tileViewPort = null;
 	var spriteViewPort = null;
+	var tileElementCache = {};
 
 	var mapWidth = 0, mapHeight = 0;
 	var tileWidth = 0, tileHeight = 0;
@@ -16,7 +17,6 @@ var Renderer = Class(function() {
 	var layersCount = 0, layersData = [];
 	var cameraWidth = 0, cameraHeight = 0;
 
-	var tileCache = {};
 	var tileDefinitions = {};
 
 	function recalcVariables() {
@@ -27,20 +27,16 @@ var Renderer = Class(function() {
 	function constructor() {
 		instanceID = new Date().getTime().toString(16);
 		viewPort = document.createElement('div');
-		viewPort.id = ('jgen-' + instanceID);
 		viewPort.style.position = 'relative';
 		viewPort.style.overflow = 'hidden';
-
 		tileViewPort = document.createElement('div');
+		tileViewPort.id = ('jgen-tvp-' + instanceID);
 		tileViewPort.style.position = 'absolute';
 		viewPort.appendChild(tileViewPort);
-
 		spriteViewPort = document.createElement('div');
 		spriteViewPort.style.position = 'absolute';
 		viewPort.appendChild(spriteViewPort);
-
 		tileElement = document.createElement('div');
-		tileElement.style.opacity =1;
 		styleElement = document.createElement('style');
 		styleElement.setAttribute('type', 'text/css');
 		document.head.appendChild(styleElement);
@@ -76,7 +72,7 @@ var Renderer = Class(function() {
 		tileDefinitions[tileID] = [tileUrl, offsetX || 0, offsetY || 0];
 		for (var tileID in tileDefinitions) {
 			var tileDefinition = tileDefinitions[tileID];
-			css.push('#jgen-' + instanceID);
+			css.push('#jgen-tvp-' + instanceID);
 			css.push('.tile-' + tileID + '{');
 			css.push('position: absolute;');
 			css.push('width: ' + tileWidth + 'px;');
@@ -90,7 +86,8 @@ var Renderer = Class(function() {
 	}
 
 	function render(scrollX, scrollY) {
-		var layer, row, col, tile, tileID, cacheKey;
+		var rowData, cellData, tileID;
+		var layer, row, col, tile, cacheKey;
 		var marginLeft = (scrollX % tileWidth);
 		var marginTop = (scrollY % tileHeight);
 		tileViewPort.style.left = -marginLeft + 'px';
@@ -99,25 +96,27 @@ var Renderer = Class(function() {
 		var tileY = Math.floor(scrollY / tileHeight);
 		var tileW = Math.ceil((viewPortWidth + marginLeft) / tileWidth);
 		var tileH = Math.ceil((viewPortHeight + marginTop) / tileHeight);
-
 		for (layer = 0; layer < layersCount; layer++) {
-
+			rowData = layersData[layer];
 			for (row = 0; row < tileH; row++) {
+				cellData = rowData[tileY + row];
 				for (col = 0; col < tileW; col++) {
+					tileID = cellData[tileX + col];
 					cacheKey = (layer * 31 + row) * 31 + col;
-					if (!tileCache.hasOwnProperty(cacheKey)) {
+					if (!(tile = tileElementCache[cacheKey])) {
 						tile = tileElement.cloneNode(false);
+						tile.style.zIndex = (layer * 2);
+						tile.className = ('tile-' + tileID);
 						tile.style.left = (tileWidth * col) + 'px';
 						tile.style.top = (tileHeight * row) + 'px';
-						tile.style.zIndex = (layer * 2);
 						tileViewPort.appendChild(tile);
-						tileCache[cacheKey] = tile;
-					} else tile = tileCache[cacheKey];
-					tileID = layersData[layer][tileY + row][tileX + col];
-					tile.className = ('tile-' + tileID);
+						tile = tileElementCache[cacheKey] = [tile, tileID];
+					} else if (tile[1] !== tileID) {
+						tile[1] = tileID;
+						tile[0].className = ('tile-' + tileID);
+					}
 				}
 			}
-
 		}
 	}
 
@@ -147,6 +146,8 @@ var Renderer = Class(function() {
 		},
 
 		render: function(scrollX, scrollY) {
+
+			// return render(scrollX, scrollY);
 
 			var aaa = (scrollX - cameraWidth);
 			var bbb = (scrollY - cameraHeight);

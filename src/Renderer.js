@@ -71,25 +71,19 @@ var Renderer = Class(function() {
 		recalcVariables();
 	}
 
-	function setTileDefinition(tileID, tileWidth, tileHeight, tileUrl, offsetX, offsetY) {
+	function setTileDefinition(tileID, tileUrl, offsetX, offsetY) {
 		var css = [];
-		tileDefinitions[tileID] = [
-			tileWidth,
-			tileHeight,
-			tileUrl,
-			offsetX || 0,
-			offsetY || 0
-		];
+		tileDefinitions[tileID] = [tileUrl, offsetX || 0, offsetY || 0];
 		for (var tileID in tileDefinitions) {
 			var tileDefinition = tileDefinitions[tileID];
 			css.push('#jgen-' + instanceID);
 			css.push('.tile-' + tileID + '{');
 			css.push('position: absolute;');
-			css.push('width: ' + tileDefinition[0] + 'px;');
-			css.push('height: ' + tileDefinition[1] + 'px;');
+			css.push('width: ' + tileWidth + 'px;');
+			css.push('height: ' + tileHeight + 'px;');
 			css.push('background-repeat: no-repeat;');
-			css.push('background-image: url("' + tileDefinition[2] + '");')
-			css.push('background-position: -' + tileDefinition[3] + 'px -' + tileDefinition[4] + 'px;');
+			css.push('background-image: url("' + tileDefinition[0] + '");')
+			css.push('background-position: -' + tileDefinition[1] + 'px -' + tileDefinition[2] + 'px;');
 			css.push('}');
 		}
 		styleElement.innerHTML = css.join('\n');

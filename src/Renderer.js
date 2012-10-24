@@ -30,7 +30,7 @@ var Renderer = Class(function() {
 		viewPort.style.position = 'relative';
 		viewPort.style.overflow = 'hidden';
 		tileViewPort = document.createElement('div');
-		tileViewPort.id = ('jgen-tvp-' + instanceID);
+		tileViewPort.id = ('jgen-tiles-' + instanceID);
 		tileViewPort.style.position = 'absolute';
 		viewPort.appendChild(tileViewPort);
 		spriteViewPort = document.createElement('div');
@@ -72,7 +72,7 @@ var Renderer = Class(function() {
 		tileDefinitions[tileID] = [tileUrl, offsetX || 0, offsetY || 0];
 		for (var tileID in tileDefinitions) {
 			var tileDefinition = tileDefinitions[tileID];
-			css.push('#jgen-tvp-' + instanceID);
+			css.push('#jgen-tiles-' + instanceID);
 			css.push('.tile-' + tileID + '{');
 			css.push('position: absolute;');
 			css.push('width: ' + tileWidth + 'px;');
@@ -147,19 +147,31 @@ var Renderer = Class(function() {
 
 		render: function(scrollX, scrollY) {
 
+			var cWidth = cameraWidth;
+			var cHeight = cameraHeight;
+
+			if (cWidth < 0) cWidth = (viewPortWidth + cWidth);
+			if (cHeight < 0) cHeight = (viewPortHeight + cHeight);
+
 			// return render(scrollX, scrollY);
 
-			var aaa = (scrollX - cameraWidth);
-			var bbb = (scrollY - cameraHeight);
+			var aaa = (scrollX - cWidth);
+			var bbb = (scrollY - cHeight);
 
-			aaa = Math.max(0, Math.min(aaa, maxScrollX));
-			bbb = Math.max(0, Math.min(bbb, maxScrollY));
-
-			render(aaa, bbb);
+			render(
+				Math.max(0, Math.min(aaa, maxScrollX)),
+				Math.max(0, Math.min(bbb, maxScrollY))
+			);
 
 			return [
-				Math.max(Math.min(scrollX, cameraWidth), scrollX - viewPortWidth),
-				Math.max(Math.min(scrollY, cameraHeight), scrollY - viewPortHeight)
+				Math.max(
+					Math.min(scrollX, cWidth),
+					cWidth + (aaa - maxScrollX)
+				),
+				Math.max(
+					Math.min(scrollY, cHeight),
+					cHeight + (bbb - maxScrollY)
+				)
 			];
 		}
 

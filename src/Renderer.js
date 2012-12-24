@@ -81,7 +81,7 @@ var Renderer = (function() {
 		styleElement.innerHTML = css.join('\n');
 	}
 
-	function renderTiles(scrollX, scrollY) {
+	function render(scrollX, scrollY) {
 
 		if (scrollX < 0) scrollX = 0;
 		if (scrollY < 0) scrollY = 0;
@@ -129,8 +129,8 @@ var Renderer = (function() {
 
 	return {
 
+		render: render,
 		addLayer: addLayer,
-		render: renderTiles,
 		setMapSize: setMapSize,
 		setTileSize: setTileSize,
 		setViewPort: setViewPort,

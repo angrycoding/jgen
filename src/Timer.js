@@ -29,7 +29,6 @@ var Timer = (function() {
 
 	return function(callback, delay) {
 		var time;
-
 		(function draw() {
 			requestAnimationFrame(draw);
 			var now = new Date().getTime(),
@@ -37,13 +36,6 @@ var Timer = (function() {
 			time = now;
 			callback(dt);
 		})();
-
-		// (function draw() {
-		// 	setTimeout(function() {
-		// 		requestAnimationFrame(draw);
-		// 		callback();
-		// 	}, delay);
-		// })();
 	};
 
 })();

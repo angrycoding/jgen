@@ -182,12 +182,10 @@ var Sprite = (function() {
 
 				if (positionChanged) {
 					positionChanged = false;
-					// spriteEl.style.webkitTransform = 'translate(' + (spriteX - scrollX || 0) + 'px,' + (spriteY - scrollY || 0) + 'px)';
 					spriteEl.style.left = (spriteX - scrollX || 0) + 'px';
 					spriteEl.style.top = (spriteY - scrollY || 0) + 'px';
 				}
 
-				// spriteEl.style.zIndex = spriteY;
 				spriteEl.style.backgroundPosition = ('-' + (
 					frameBuffer[frameNumber] ||
 					frameBuffer[frameNumber = 0]

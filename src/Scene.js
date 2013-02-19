@@ -32,8 +32,11 @@ define([
 			viewPortHeight = tileHeight * mapHeight;
 
 
-			viewPort.style.webkitTransformOrigin = '0px 0px 0px';
+			viewPort.style.webkitTransformOrigin = '0px 0px';
 			viewPort.style.webkitTransform = 'scale(' + scaleX + ',' + scaleY + ')';
+
+			viewPort.style.transformOrigin = '0px 0px';
+			viewPort.style.transform = 'scale(' + scaleX + ',' + scaleY + ')';
 		}
 
 

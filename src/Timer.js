@@ -1,4 +1,4 @@
-var Timer = (function() {
+define(function() {
 
 	var lastTime = 0;
 	var vendors = ['ms', 'moz', 'webkit', 'o'];
@@ -38,4 +38,4 @@ var Timer = (function() {
 		})();
 	};
 
-})();
+});

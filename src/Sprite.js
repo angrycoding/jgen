@@ -1,202 +1,308 @@
-var Sprite = (function() {
+define([
+	'./Constants'
+], function(Constants) {
 
-	var sprite = document.createElement('div');
-	sprite.style.display = 'none';
-	sprite.style.position = 'absolute';
-	sprite.style.backgroundPosition = '0px 0px';
-	sprite.style.backgroundRepeat = 'no-repeat';
+	var myApplyCache = {};
 
-	return function(width, height, url, states, handlers, cManager) {
+	function Sprite(spriteView, definition, factoryHandlers) {
 
 		var frameNumber = 0;
 		var frameBuffer = [];
+		var instanceHandlers = {};
 
-		var spriteX = 0;
-		var spriteY = 0;
-		var spriteState = {};
+		var spriteLeft = 0, spriteTop = 0;
+		var spriteWidth = definition.width;
+		var spriteHeight = definition.height;
+		var spriteFrames = definition.frames;
+		var translateLeft = 0, translateTop = 0;
+
+		var spriteProps = {};
+		var spriteOpacity = 1;
 		var spriteFrame = null;
 		var spriteRotation = null;
 		var spriteVisible = false;
 
-		var frameChanged = false;
-		var stateChanged = false;
-		var rotationChanged = false;
-		var positionChanged = false;
-		var visibilityChanged = false;
+		var updateOpacity = false;
+		var updatePosition = false;
+		var updateVisibility = false;
+		var oldWalkState = Constants.ON_WALKSTOP;
+		var newWalkState = Constants.ON_WALKSTOP;
 
-		var spriteEl = sprite.cloneNode(true);
-		spriteEl.style.width = width + 'px';
-		spriteEl.style.height = height + 'px';
-		spriteEl.style.backgroundImage = 'url("'+url+'")';
+		spriteView = spriteView.cloneNode(true);
 
-		if (!(handlers instanceof Object) ||
-			handlers instanceof Array) {
-			handlers = {};
-		}
+		function handleEvent(id) {
+			if (typeof id !== 'number') return;
 
-		var onRotate = handlers.onRotate;
-		if (!onRotate instanceof Function) onRotate = null;
+			var args = [], length = arguments.length - 1;
+			for (var c = 1; c <= length; c++) args.push(arguments[c]);
 
-		var onStateChange = handlers.onStateChange;
-		if (!onStateChange instanceof Function) onStateChange = null;
+			var caller = myApplyCache[length];
 
-		function setPosition(x, y) {
-			var collision = cManager.adjust(x, y, width, height);
-
-			if (collision) {
-
-				if (instance.y + height <= collision[1]) {
-					y = collision[1] - height;
-				} else if (instance.y >= collision[1] + collision[3]) {
-					y = collision[1] + collision[3];
+			if (!caller) {
+				var body = 'return c(';
+				for (var c = 0; c < length; c++) {
+					if (c) body += ',';
+					body += 'a[' + c + ']';
 				}
+				body += ')';
+				caller = new Function('c,a', body);
+				myApplyCache[length] = caller;
+			}
 
-				if (instance.x + width <= collision[0]) {
-					x = collision[0] - width;
-				} else if (instance.x >= collision[0] + collision[2]) {
-					x = collision[0] + collision[2];
+			var handlers = factoryHandlers[id];
+			if (typeof handlers !== 'undefined' &&
+				handlers.apply(this, args) === false) {
+				return false;
+			}
+
+			handlers = instanceHandlers[id];
+			if (typeof handlers !== 'undefined') {
+				length = handlers.length;
+				for (var c = 0; c < length; c++) {
+					if (caller(handlers[c], args) === false) {
+						return false;
+					}
 				}
 			}
 
-			var isMoved = (instance.x !== x || instance.y !== y);
+		}
 
-			instance.x = x;
-			instance.y = y;
+		function view() {
+			return spriteView;
+		}
 
+		function left() {
+			return spriteLeft;
+		}
 
-			return isMoved;
+		function right() {
+			return spriteLeft + spriteWidth;
+		}
+
+		function top() {
+			return spriteTop;
+		}
+
+		function bottom() {
+			return spriteTop + spriteHeight;
+		}
+
+		function position() {
+			return [spriteLeft, spriteTop];
+		}
+
+		function center() {
+			return [
+				spriteLeft + spriteWidth / 2,
+				spriteTop + spriteHeight / 2
+			];
+		}
+
+		function width() {
+			return spriteWidth;
+		}
+
+		function height() {
+			return spriteHeight;
+		}
+
+		function size() {
+			return [spriteWidth, spriteHeight];
+		}
+
+		function rect() {
+			return [
+				spriteLeft, spriteTop,
+				spriteWidth, spriteHeight
+			];
+		}
+
+		function bound() {
+			return [
+				spriteLeft, spriteTop,
+				spriteLeft + spriteWidth,
+				spriteTop + spriteHeight
+			];
+		}
+
+		function alpha(opacity) {
+			if (spriteOpacity !== opacity) {
+				spriteOpacity = opacity;
+				updateOpacity = true;
+			}
+		}
+
+		function show() {
+			if (!spriteVisible) {
+				spriteVisible = true;
+				updateVisibility = true;
+			}
+		}
+
+		function hide() {
+			if (spriteVisible) {
+				spriteVisible = false;
+				updateVisibility = true;
+			}
+		}
+
+		function visible() {
+			return spriteVisible;
+		}
+
+		function rotation() {
+			return spriteRotation;
+		}
+
+		function translate(left, top) {
+			if (translateLeft !== left ||
+				translateTop !== top) {
+				translateLeft = left;
+				translateTop = top;
+				updatePosition = true;
+			}
+		}
+
+		function rotate(rotation) {
+			if (spriteRotation === rotation || handleEvent(
+				Constants.ON_ROTATE, this, rotation) !== false) {
+				spriteRotation = rotation;
+				return true;
+			} return false;
+		}
+
+		function move(left, top) {
+			if (spriteLeft !== left ||
+				spriteTop !== top) {
+
+				if (handleEvent(
+					Constants.ON_MOVE, this,
+					spriteLeft, spriteTop,
+					left, top
+				) !== false) {
+
+					spriteLeft = left;
+					spriteTop = top;
+					updatePosition = true;
+
+					return true;
+
+				}
+
+				return false;
+
+			}
+			return true;
+		}
+
+		function walk(angle, speed) {
+			if (this.rotate(angle) && this.move(
+				spriteLeft + Math.cos(angle) * speed,
+				spriteTop + Math.sin(angle) * speed)) {
+				newWalkState = Constants.ON_WALKSTART;
+				return true;
+			} return false;
+		}
+
+		function getProperty(name) {
+			return spriteProps[name];
+		}
+
+		function setProperty(name, value) {
+			if (spriteProps[name] !== value) {
+				spriteProps[name] = value;
+				handleEvent(Constants.ON_PROPCHANGE, this, spriteProps);
+			}
+		}
+
+		function setFrame(frame) {
+			if (spriteFrame !== frame) {
+				frameNumber = 0;
+				frameBuffer = spriteFrames[
+					spriteFrame = frame
+				];
+			}
+		}
+
+		function addEventListener(id, handler) {
+			if (typeof id === 'number' &&
+				handler instanceof Function) {
+				if (!instanceHandlers[id]) instanceHandlers[id] = [];
+				instanceHandlers[id].push(handler);
+			}
+		}
+
+		function render() {
+
+			if (oldWalkState !== newWalkState) {
+				handleEvent(newWalkState, this);
+				oldWalkState = newWalkState;
+			} else newWalkState = Constants.ON_WALKSTOP;
+
+			if (updateVisibility) {
+				updateVisibility = false;
+				if (spriteVisible) {
+					spriteView.style.display = 'block';
+				} else {
+					spriteView.style.display = 'none';
+				}
+			}
+
+			if (updateOpacity) {
+				updateOpacity = false;
+				spriteView.style.opacity = spriteOpacity;
+			}
+
+			if (updatePosition) {
+				updatePosition = false;
+				spriteView.style.left = (spriteLeft - translateLeft) + 'px';
+				spriteView.style.top = (spriteTop - translateTop) + 'px';
+			}
+
+			if (frameBuffer.length) {
+				spriteView.style.backgroundPosition = ('-' + (
+					frameBuffer[Math.ceil(frameNumber)] ||
+					frameBuffer[frameNumber = 0]
+				).join('px -') + 'px');
+				frameNumber += 1;
+			}
+
 		}
 
 		return {
+			view: view,
+			left: left,
+			right: right,
+			top: top,
+			bottom: bottom,
+			position: position,
+			center: center,
+			width: width,
+			height: height,
+			size: size,
+			rect: rect,
+			bound: bound,
+			visible: visible,
+			rotation: rotation,
 
-			getView: function() {
-				return spriteEl;
-			},
+			move: move,
+			show: show,
+			hide: hide,
+			walk: walk,
+			alpha: alpha,
+			rotate: rotate,
+			render: render,
+			setFrame: setFrame,
+			translate: translate,
+			getProperty: getProperty,
+			setProperty: setProperty,
+			addEventListener: addEventListener,
 
-			getPosition: function() {
-				return [spriteX, spriteY];
-			},
-
-			getCenter: function() {
-				return [
-					spriteX + width / 2,
-					spriteY + height / 2
-				];
-			},
-
-			getWidth: function() {
-				return width;
-			},
-
-			getHeight: function() {
-				return height;
-			},
-
-			move: function(x, y) {
-				if (spriteX !== x ||
-					spriteY !== y) {
-					spriteX = x;
-					spriteY = y;
-					positionChanged = true;
-				}
-				return true;
-			},
-
-			show: function() {
-				if (!spriteVisible) {
-					spriteVisible = true;
-					visibilityChanged = true;
-				}
-			},
-
-			hide: function() {
-				if (spriteVisible) {
-					spriteVisible = false;
-					visibilityChanged = true;
-				}
-			},
-
-			rotate: function(rotation) {
-				if (spriteRotation !== rotation) {
-					spriteRotation = rotation;
-					rotationChanged = true;
-				}
-			},
-
-			walk: function(angle, speed) {
-				this.rotate(angle);
-				return this.move(
-					spriteX + Math.cos(angle) * speed,
-					spriteY + Math.sin(angle) * speed
-				);
-			},
-
-			setState: function(state, value) {
-				if (spriteState[state] !== value) {
-					spriteState[state] = value;
-					stateChanged = true;
-				}
-			},
-
-			setFrame: function(frame) {
-				if (spriteFrame !== frame) {
-					frameNumber = 0;
-					spriteFrame = frame;
-					frameChanged = true;
-				}
-			},
-
-			render: function(scrollX, scrollY) {
-
-				if (visibilityChanged) {
-					visibilityChanged = false;
-					if (spriteVisible) {
-						spriteEl.style.display = 'block';
-					} else spriteEl.style.display = 'none';
-				}
-
-				if (rotationChanged) {
-					rotationChanged = false;
-					if (onRotate) {
-						onRotate.call(
-							this,
-							spriteRotation
-						);
-					}
-				}
-
-				if (stateChanged) {
-					stateChanged = false;
-					if (onStateChange) {
-						onStateChange.call(
-							this,
-							spriteState
-						);
-					}
-				}
-
-				if (frameChanged) {
-					frameChanged = false;
-					frameBuffer = states[spriteFrame];
-				}
-
-				if (positionChanged) {
-					positionChanged = false;
-					spriteEl.style.left = (spriteX - scrollX || 0) + 'px';
-					spriteEl.style.top = (spriteY - scrollY || 0) + 'px';
-				}
-
-				spriteEl.style.backgroundPosition = ('-' + (
-					frameBuffer[frameNumber] ||
-					frameBuffer[frameNumber = 0]
-				).join('px -') + 'px');
-
-				frameNumber++;
-
-			}
-
+			// addSprite: addSprite
 		};
 
-	};
+	}
 
-})();
+	return Sprite;
+
+});

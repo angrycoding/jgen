@@ -25,11 +25,11 @@ You can find classes overview as well as examples in our wiki, just follow the s
   * [Collisions - Demo](http://angrycoding.github.com/jgen/api-test/)
   * [2D Map with sprite animation - Demo](http://angrycoding.github.com/jgen/api-test/map.html)
   * [Sprite Animation - Demo](http://angrycoding.github.com/jgen/api-test/sprite-animation.html)
-* [Tanks game online demo](http://angrycoding.github.com/jgen/tanks/)
+* [Tanks game online demo](http://angrycoding.github.io/jgen/tanks/)
 
 **For all demos, use the arrow keys to control the game scene.**
 
-* [Map editor online demo](http://angrycoding.github.com/jgen/map-editor/)
+* [Map editor online demo](http://angrycoding.github.io/jgen/map-editor/)
 
 **IMPORTANT! KNOWN ISSUES:**
 
